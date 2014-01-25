@@ -95,7 +95,5 @@ describe User do
 			it { should_not eq user_for_invalid_password }
 			specify { expect(user_for_invalid_password).to be_false } # specify and it is synonym, we only use the specify to sound better
 		end
-
 	end
-
 end
