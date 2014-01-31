@@ -2,19 +2,31 @@ require 'spec_helper'
 
 describe User do
 	before do 
-		@user = User.new(name: "Mark Joseph", email: "markronquill23@gmail.com", 
-							password: "foobar", password_confirmation: "foobar") 
+		@user = FactoryGirl::create(:user)
 	end
 
 	subject { @user }
 
+	# test required
 	it { should respond_to(:name) }
 	it { should respond_to(:email) } # tests if subject (@user) has email attribute
 	it { should respond_to(:password_digest) } # tests if subject (@user) has email attribute
 	it { should respond_to(:password) } # tests if subject (@user) has email attribute
 	it { should respond_to(:password_confirmation) } # tests if subject (@user) has email attribute
+	it { should respond_to(:remember_token)}
+	it { should respond_to(:authenticate)}
 
 	it { should be_valid }
+	it { should_not be_admin }
+
+	describe "with admin attribute set to true" do
+		before do
+			@user.save!
+			@user.toggle!(:admin)
+		end
+
+		it { should be_admin}
+	end
 
 	it { should respond_to(:authenticate) }
 
@@ -56,6 +68,7 @@ describe User do
 	describe "when email is already taken" do
 		before do
 			user_with_the_same_email = @user.dup
+			user_with_the_same_email.email = @user.email.upcase
 			user_with_the_same_email.save
 		end
 
@@ -95,5 +108,10 @@ describe User do
 			it { should_not eq user_for_invalid_password }
 			specify { expect(user_for_invalid_password).to be_false } # specify and it is synonym, we only use the specify to sound better
 		end
+	end
+
+	describe "remember token" do
+		before { @user.save }
+		its(:remember_token) { should_not be_blank }
 	end
 end
